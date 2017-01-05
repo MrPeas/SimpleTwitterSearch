@@ -15,7 +15,7 @@ import java.util.Locale;
  * Created by Janusz on 04.01.2017.
  */
 @Controller
-public class profileControler {
+public class ProfileController {
     @RequestMapping("/profile")
     public String displayProfile(ProfileForm profileForm) {
         return "profile/profilePage";
