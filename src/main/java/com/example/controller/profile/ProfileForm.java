@@ -21,7 +21,7 @@ public class ProfileForm {
     private String email;
     @NotNull
     @PastLocalDate
-    private LocalDate birthday;
+    private LocalDate birthDate;
     //@NotEmpty
     private List<String> tastes=new ArrayList<>();
 
@@ -41,12 +41,12 @@ public class ProfileForm {
         this.email = email;
     }
 
-    public LocalDate getBirthday() {
-        return birthday;
+    public LocalDate getBirthDate() {
+        return birthDate;
     }
 
-    public void setBirthday(LocalDate birthday) {
-        this.birthday = birthday;
+    public void setBirthDate(LocalDate birthday) {
+        this.birthDate = birthday;
     }
 
     public List<String> getTastes() {

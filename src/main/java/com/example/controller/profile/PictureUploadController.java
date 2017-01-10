@@ -3,6 +3,7 @@ package com.example.controller.profile;
 import com.example.config.PictureUploadProperties;
 import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Controller;
@@ -11,12 +12,11 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import org.springframework.web.util.WebUtils;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.net.URLConnection;
+import java.util.Locale;
 
 /**
  * Created by Janusz on 05.01.2017.
@@ -26,28 +26,33 @@ import java.net.URLConnection;
 public class PictureUploadController {
     private final Resource picturesDir;
     private final Resource anonymousPicture;
+    private final MessageSource messageSource;
+    private UserProfileSession userProfileSession;
 
     @Autowired
-    PictureUploadController(PictureUploadProperties uploadProperties){
+    PictureUploadController(PictureUploadProperties uploadProperties,MessageSource messageSource,
+                            UserProfileSession userProfileSession){
         picturesDir=uploadProperties.getUploadPath();
         anonymousPicture=uploadProperties.getAnonymousPicture();
+        this.messageSource=messageSource;
+        this.userProfileSession=userProfileSession;
     }
 
     @RequestMapping("upload")
     public String uploadPage(){
-        return "profile/uploadPage";
+        return "profile/profilePage";
     }
 
-    @RequestMapping(value = "/upload",method = RequestMethod.POST)
+    @RequestMapping(value = "/profile",method = RequestMethod.POST,params = {"upload"})
     public String onUpload(MultipartFile file,
                            RedirectAttributes redirectAttributes, Model model) throws IOException{
         if(file.isEmpty()||!isImage(file)){
-            redirectAttributes.addFlashAttribute("error");
-            return "redirect:/upload";
+            redirectAttributes.addFlashAttribute("error","upload.error");
+            return "redirect:/profile";
         }
             Resource picturePath=copyFileToPictures(file);
-            model.addAttribute("picturePath",picturePath);
-        return "profile/uploadPage";
+            userProfileSession.setPicturePath(picturePath);
+        return "redirect:/profile";
     }
 
     @RequestMapping("/uploadPicture")
@@ -60,16 +65,16 @@ public class PictureUploadController {
 
 
     @RequestMapping("uploadError")
-    public ModelAndView onUploadError(HttpServletRequest request){
-        ModelAndView modelAndView=new ModelAndView("profile/uploadPage");
-        modelAndView.addObject("error",request.getAttribute(WebUtils.ERROR_MESSAGE_ATTRIBUTE));
+    public ModelAndView onUploadError(Locale locale){
+        ModelAndView modelAndView=new ModelAndView("profile/profilePage");
+        modelAndView.addObject("error",messageSource.getMessage("upload.file.too.big",null,locale));
         return modelAndView;
     }
 
     @ExceptionHandler(IOException.class)
-    public ModelAndView handleIOException(IOException exception){
-        ModelAndView modelAndView = new ModelAndView("profile/uploadPage");
-        modelAndView.addObject("error",exception.getMessage());
+    public ModelAndView handleIOException(Locale locale){
+        ModelAndView modelAndView = new ModelAndView("profile/profilePage");
+        modelAndView.addObject("error",messageSource.getMessage("upload.io.exception",null,locale));
         return modelAndView;
     }
     @ModelAttribute("picturePath")
