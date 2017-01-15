@@ -12,8 +12,7 @@
     <ul class="collection">
         <li class="collection-item avatar" th:each="tweet : ${tweets}">
             <img th:src="${tweet.profileImageUrl}" alt="" class="circle"/>
-            <span class="title" th:text="${tweet.user.name}">uzytkownik</span>
-
+            <span class="title" th:text="${tweet.user}">uzytkownik</span>
             <p th:text="${tweet.text}">treść tweeta</p>
         </li>
     </ul>
